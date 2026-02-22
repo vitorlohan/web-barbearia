@@ -5,9 +5,9 @@
  * Página Configurações (Admin)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { FaSave, FaWhatsapp, FaPlus, FaTimes, FaCircle } from 'react-icons/fa';
+import { FaSave, FaWhatsapp, FaPlus, FaTimes, FaCircle, FaSyncAlt } from 'react-icons/fa';
 import { configuracaoService } from '../../../services/configuracaoService';
 
 interface Configuracao {
@@ -30,6 +30,10 @@ export function ConfiguracaoPage() {
   const [enviarLembrete, setEnviarLembrete] = useState(true);
   const [mensagemPersonalizada, setMensagemPersonalizada] = useState('');
   const [wppConnected, setWppConnected] = useState<boolean | null>(null);
+  const [wppInitializing, setWppInitializing] = useState(false);
+  const [wppQrCode, setWppQrCode] = useState<string | null>(null);
+  const [reconnecting, setReconnecting] = useState(false);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadConfig = async () => {
     try {
@@ -49,14 +53,82 @@ export function ConfiguracaoPage() {
   useEffect(() => {
     loadConfig();
     loadWppStatus();
+    return () => stopPolling();
   }, []);
 
-  const loadWppStatus = async () => {
+  const loadWppStatus = useCallback(async () => {
     try {
       const response = await configuracaoService.getWhatsAppStatus();
-      setWppConnected(response.data.data.connected);
+      const { connected, initializing, hasQrCode } = response.data.data;
+      setWppConnected(connected);
+      setWppInitializing(initializing);
+
+      if (connected) {
+        setWppQrCode(null);
+        stopPolling();
+        return;
+      }
+
+      // Se tem QR Code disponível, buscar
+      if (hasQrCode) {
+        const qrResponse = await configuracaoService.getWhatsAppQrCode();
+        setWppQrCode(qrResponse.data.data.qrCode);
+      }
+
+      // Se está inicializando ou tem QR, manter polling
+      if (initializing || hasQrCode) {
+        startPolling();
+      }
     } catch {
       setWppConnected(false);
+    }
+  }, []);
+
+  const startPolling = useCallback(() => {
+    if (pollingRef.current) return;
+    pollingRef.current = setInterval(async () => {
+      try {
+        const response = await configuracaoService.getWhatsAppStatus();
+        const { connected, initializing, hasQrCode } = response.data.data;
+        setWppConnected(connected);
+        setWppInitializing(initializing);
+
+        if (connected) {
+          setWppQrCode(null);
+          setReconnecting(false);
+          stopPolling();
+          toast.success('WhatsApp conectado!');
+          return;
+        }
+
+        if (hasQrCode) {
+          const qrResponse = await configuracaoService.getWhatsAppQrCode();
+          setWppQrCode(qrResponse.data.data.qrCode);
+        }
+      } catch {
+        // silencioso
+      }
+    }, 3000);
+  }, []);
+
+  const stopPolling = useCallback(() => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+  }, []);
+
+  const handleReconnect = async () => {
+    setReconnecting(true);
+    setWppQrCode(null);
+    try {
+      await configuracaoService.reconnectWhatsApp();
+      toast.info('Reconexão iniciada. Aguarde o QR Code...');
+      // Começa polling para aguardar o QR Code
+      startPolling();
+    } catch {
+      toast.error('Erro ao reconectar WhatsApp');
+      setReconnecting(false);
     }
   };
 
@@ -135,27 +207,92 @@ export function ConfiguracaoPage() {
           <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <FaWhatsapp color="#25D366" /> Status do WhatsApp
           </h3>
+
+          {/* Barra de status */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'space-between',
             gap: '0.75rem',
             padding: '1rem',
             background: 'var(--color-bg-card)',
             border: `1px solid ${wppConnected ? '#25D366' : 'var(--color-border)'}`,
             borderRadius: '0.5rem',
+            marginBottom: wppQrCode || wppInitializing || reconnecting ? '1rem' : 0,
           }}>
-            <FaCircle
-              size={10}
-              color={wppConnected === null ? '#8A8A8A' : wppConnected ? '#25D366' : '#e74c3c'}
-            />
-            <span style={{ fontSize: '0.95rem' }}>
-              {wppConnected === null
-                ? 'Verificando conexão...'
-                : wppConnected
-                  ? 'WPPConnect conectado — Mensagens serão enviadas via WhatsApp'
-                  : 'WPPConnect desconectado — Escaneie o QR Code no terminal do backend'}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <FaCircle
+                size={10}
+                color={wppConnected === null ? '#8A8A8A' : wppConnected ? '#25D366' : wppInitializing || reconnecting ? '#f39c12' : '#e74c3c'}
+              />
+              <span style={{ fontSize: '0.95rem' }}>
+                {wppConnected === null
+                  ? 'Verificando conexão...'
+                  : wppConnected
+                    ? 'WhatsApp conectado — Mensagens ativas'
+                    : wppInitializing || reconnecting
+                      ? 'Aguardando conexão...'
+                      : 'WhatsApp desconectado'}
+              </span>
+            </div>
+            {!wppConnected && !wppInitializing && !reconnecting && (
+              <button
+                type="button"
+                onClick={handleReconnect}
+                className="btn-admin btn-admin-primary"
+                style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}
+              >
+                <FaSyncAlt /> Conectar
+              </button>
+            )}
           </div>
+
+          {/* QR Code */}
+          {wppQrCode && !wppConnected && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1rem',
+              padding: '2rem',
+              background: '#ffffff',
+              borderRadius: '0.75rem',
+              border: '1px solid var(--color-border)',
+            }}>
+              <img
+                src={wppQrCode}
+                alt="QR Code WhatsApp"
+                style={{
+                  width: '280px',
+                  height: '280px',
+                  imageRendering: 'pixelated',
+                }}
+              />
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ color: '#333', fontWeight: 600, fontSize: '1rem', marginBottom: '0.25rem' }}>
+                  Escaneie com o WhatsApp
+                </p>
+                <p style={{ color: '#666', fontSize: '0.85rem' }}>
+                  Abra o WhatsApp &gt; Menu &gt; Aparelhos conectados &gt; Conectar dispositivo
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Estado de carregamento */}
+          {(wppInitializing || reconnecting) && !wppQrCode && !wppConnected && (
+            <div style={{
+              textAlign: 'center',
+              padding: '2rem',
+              color: 'var(--color-text-muted)',
+              background: 'var(--color-bg-card)',
+              borderRadius: '0.5rem',
+              border: '1px solid var(--color-border)',
+            }}>
+              <FaSyncAlt style={{ animation: 'spin 1s linear infinite', marginBottom: '0.5rem' }} size={24} />
+              <p>Iniciando WPPConnect... Aguarde o QR Code.</p>
+            </div>
+          )}
         </div>
 
         {/* WhatsApp Principal */}

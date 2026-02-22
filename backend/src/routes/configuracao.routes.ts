@@ -19,5 +19,7 @@ router.get('/whatsapp', configuracaoController.getWhatsApp);
 router.get('/', authMiddleware, configuracaoController.buscar);
 router.put('/', authMiddleware, configuracaoController.atualizar);
 router.get('/whatsapp-status', authMiddleware, configuracaoController.getWhatsAppStatus);
+router.get('/whatsapp-qr', authMiddleware, configuracaoController.getWhatsAppQrCode);
+router.post('/whatsapp-reconnect', authMiddleware, configuracaoController.reconnectWhatsApp);
 
 export default router;

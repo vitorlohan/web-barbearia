@@ -49,7 +49,49 @@ export class ConfiguracaoController {
       status: 'success',
       data: {
         connected: WhatsAppService.isConnected(),
+        initializing: WhatsAppService.isInitializing(),
+        hasQrCode: WhatsAppService.getQrCode() !== null,
       },
     });
+  };
+
+  getWhatsAppQrCode = async (_req: Request, res: Response): Promise<void> => {
+    const qrCode = WhatsAppService.getQrCode();
+    
+    if (!qrCode) {
+      res.json({
+        status: 'success',
+        data: {
+          qrCode: null,
+          connected: WhatsAppService.isConnected(),
+          initializing: WhatsAppService.isInitializing(),
+        },
+      });
+      return;
+    }
+
+    res.json({
+      status: 'success',
+      data: {
+        qrCode,
+        connected: false,
+        initializing: false,
+      },
+    });
+  };
+
+  reconnectWhatsApp = async (_req: Request, res: Response): Promise<void> => {
+    try {
+      await WhatsAppService.reconectar();
+      res.json({
+        status: 'success',
+        data: { message: 'Reconexão iniciada. Aguarde o QR Code.' },
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        status: 'error',
+        message: error.message || 'Erro ao reconectar',
+      });
+    }
   };
 }

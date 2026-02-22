@@ -589,3 +589,9 @@
     padding: 0.6rem 0.75rem;
   }
 }
+
+/* Spin animation */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

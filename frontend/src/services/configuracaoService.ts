@@ -28,5 +28,11 @@ export const configuracaoService = {
     api.get<{ status: string; data: { whatsapp: string } }>('/configuracao/whatsapp'),
 
   getWhatsAppStatus: () =>
-    api.get<{ status: string; data: { connected: boolean } }>('/configuracao/whatsapp-status'),
+    api.get<{ status: string; data: { connected: boolean; initializing: boolean; hasQrCode: boolean } }>('/configuracao/whatsapp-status'),
+
+  getWhatsAppQrCode: () =>
+    api.get<{ status: string; data: { qrCode: string | null; connected: boolean; initializing: boolean } }>('/configuracao/whatsapp-qr'),
+
+  reconnectWhatsApp: () =>
+    api.post<{ status: string; data: { message: string } }>('/configuracao/whatsapp-reconnect'),
 };

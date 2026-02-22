@@ -14,6 +14,7 @@ export class WhatsAppService {
   private static client: wppconnect.Whatsapp | null = null;
   private static initializing = false;
   private static ready = false;
+  private static qrCode: string | null = null;
   private configuracaoRepository: ConfiguracaoRepository;
 
   constructor() {
@@ -22,17 +23,18 @@ export class WhatsAppService {
 
   /**
    * Inicializa a sessão do WPPConnect (singleton).
-   * Exibe QR Code no terminal para escanear com o WhatsApp.
+   * Gera QR Code acessível via API para escanear pelo painel admin.
    * A sessão é salva em disco para reconexão automática.
    */
   static async inicializar(): Promise<void> {
     if (WhatsAppService.client || WhatsAppService.initializing) return;
     WhatsAppService.initializing = true;
+    WhatsAppService.qrCode = null;
 
     try {
       console.log('');
       console.log('📱 Iniciando WPPConnect...');
-      console.log('📱 Escaneie o QR Code abaixo com seu WhatsApp:');
+      console.log('📱 Acesse o painel admin > Configurações para escanear o QR Code');
       console.log('');
 
       const client = await wppconnect.create({
@@ -43,24 +45,24 @@ export class WhatsAppService {
         puppeteerOptions: {
           args: ['--no-sandbox', '--disable-setuid-sandbox'],
         },
-        logQR: true,
-        catchQR: (base64Qr, asciiQR) => {
-          console.log('');
-          console.log('═══════════════════════════════════════');
-          console.log('  📱 ESCANEIE O QR CODE COM O WHATSAPP');
-          console.log('═══════════════════════════════════════');
-          console.log(asciiQR);
-          console.log('═══════════════════════════════════════');
-          console.log('');
+        logQR: false,
+        catchQR: (base64Qr) => {
+          // Armazena o QR code em base64 para servir via API
+          WhatsAppService.qrCode = base64Qr;
+          console.log('📱 QR Code gerado — disponível no painel admin');
         },
         statusFind: (statusSession) => {
           console.log(`📱 Status da sessão: ${statusSession}`);
+          if (statusSession === 'inChat' || statusSession === 'isLogged') {
+            WhatsAppService.qrCode = null; // Limpa QR ao conectar
+          }
         },
       });
 
       WhatsAppService.client = client;
       WhatsAppService.ready = true;
       WhatsAppService.initializing = false;
+      WhatsAppService.qrCode = null;
 
       console.log('✅ WPPConnect conectado com sucesso!');
       console.log('');
@@ -75,6 +77,51 @@ export class WhatsAppService {
   /** Retorna true se o WPPConnect está conectado */
   static isConnected(): boolean {
     return WhatsAppService.ready && WhatsAppService.client !== null;
+  }
+
+  /** Retorna o QR Code em base64 (ou null se já conectado/não disponível) */
+  static getQrCode(): string | null {
+    return WhatsAppService.qrCode;
+  }
+
+  /** Retorna true se está no processo de inicialização */
+  static isInitializing(): boolean {
+    return WhatsAppService.initializing;
+  }
+
+  /** Desconecta a sessão ativa e permite reconectar */
+  static async desconectar(): Promise<void> {
+    if (WhatsAppService.client) {
+      try {
+        await WhatsAppService.client.logout();
+      } catch {
+        // ignora erro de logout
+      }
+      try {
+        await WhatsAppService.client.close();
+      } catch {
+        // ignora erro de close
+      }
+    }
+    WhatsAppService.client = null;
+    WhatsAppService.ready = false;
+    WhatsAppService.initializing = false;
+    WhatsAppService.qrCode = null;
+  }
+
+  /** Desconecta e reinicia o WPPConnect (gera novo QR Code) */
+  static async reconectar(): Promise<void> {
+    await WhatsAppService.desconectar();
+    // Remove tokens salvos para forçar novo QR
+    const fs = await import('fs');
+    const tokensPath = path.resolve(__dirname, '..', '..', 'tokens');
+    if (fs.existsSync(tokensPath)) {
+      fs.rmSync(tokensPath, { recursive: true, force: true });
+    }
+    // Reinicia em background (não bloqueia)
+    WhatsAppService.inicializar().catch((err) => {
+      console.error('❌ Erro ao reconectar WPPConnect:', err.message);
+    });
   }
 
   async enviarNotificacaoAgendamento(agendamento: {
