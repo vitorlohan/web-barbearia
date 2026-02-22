@@ -12,7 +12,7 @@ import morgan from 'morgan';
 import { env } from './config';
 import routes from './routes';
 import { errorHandler } from './middlewares';
-import { CronService } from './services';
+import { CronService, WhatsAppService } from './services';
 
 const app = express();
 
@@ -61,6 +61,14 @@ app.listen(env.PORT, () => {
   console.log('  👨‍💻 Desenvolvido por Vitor Lohan');
   console.log('===================================');
   console.log('');
+
+  // Iniciar WPPConnect (WhatsApp)
+  WhatsAppService.inicializar().then(() => {
+    console.log('📱 WPPConnect inicializado');
+  }).catch((err) => {
+    console.error('⚠️  WPPConnect não conectado:', err.message);
+    console.log('⚠️  Mensagens serão simuladas no console.');
+  });
 
   // Iniciar cron jobs
   const cronService = new CronService();

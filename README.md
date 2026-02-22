@@ -7,6 +7,7 @@
   <img src="https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white" />
   <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
   <img src="https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white" />
+  <img src="https://img.shields.io/badge/WPPConnect-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" />
 </p>
 
 <h1 align="center">💈 Navalha de Ouro</h1>
@@ -43,7 +44,7 @@
 - **Serviços** — CRUD completo com upload de imagens via Cloudinary
 - **Agendamentos** — filtros por período/status, atualização de status, exportação CSV
 - **Horários** — bloqueio de horários específicos por data
-- **Configurações** — WhatsApp, notificações, lembretes automáticos (cron)
+- **Configurações** — WhatsApp, notificações, lembretes automáticos (1h antes)
 - **Configuração Web** — personalização completa do site:
 
 | Aba | O que configura |
@@ -71,7 +72,7 @@
 | **Zod** | Validação de schemas |
 | **Cloudinary** | Upload e CDN de imagens |
 | **Multer** | Middleware de upload |
-| **Twilio** | Integração WhatsApp |
+| **WPPConnect** | Integração WhatsApp (gratuito) |
 | **node-cron** | Tarefas agendadas (lembretes) |
 | **Helmet** | Headers de segurança |
 | **express-rate-limit** | Proteção contra brute-force |
@@ -201,12 +202,9 @@ JWT_SECRET=sua_chave_secreta_forte
 CLOUDINARY_CLOUD_NAME=seu_cloud_name
 CLOUDINARY_API_KEY=sua_api_key
 CLOUDINARY_API_SECRET=seu_api_secret
-
-# WhatsApp / Twilio (opcional)
-TWILIO_ACCOUNT_SID=seu_account_sid
-TWILIO_AUTH_TOKEN=seu_auth_token
-TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
 ```
+
+> 📱 **WhatsApp (WPPConnect):** Ao iniciar o backend pela primeira vez, um QR Code aparecerá no terminal. Escaneie com o WhatsApp do número dedicado da barbearia para ativar notificações.
 
 Rodar migrações e seed:
 

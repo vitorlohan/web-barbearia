@@ -18,9 +18,6 @@ export const env = {
     return 'dev_secret_key_change_in_production';
   })(),
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '24h',
-  TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID || '',
-  TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN || '',
-  TWILIO_WHATSAPP_FROM: process.env.TWILIO_WHATSAPP_FROM || '',
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '',
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',

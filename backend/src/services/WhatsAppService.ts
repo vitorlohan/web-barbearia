@@ -2,29 +2,79 @@
  * Sistema desenvolvido por Vitor Lohan
  * Todos os direitos reservados.
  * 
- * Service - WhatsApp (Twilio)
+ * Service - WhatsApp (WPPConnect)
  */
 
-import { env } from '../config';
+import wppconnect from '@wppconnect-team/wppconnect';
+import path from 'path';
 import { ConfiguracaoRepository } from '../repositories';
 import { buildWhatsAppMessage, formatDate } from '../utils/helpers';
 
 export class WhatsAppService {
+  private static client: wppconnect.Whatsapp | null = null;
+  private static initializing = false;
+  private static ready = false;
   private configuracaoRepository: ConfiguracaoRepository;
-  private client: any;
 
   constructor() {
     this.configuracaoRepository = new ConfiguracaoRepository();
-    
-    if (env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN) {
-      try {
-        const twilio = require('twilio');
-        this.client = twilio(env.TWILIO_ACCOUNT_SID, env.TWILIO_AUTH_TOKEN);
-      } catch {
-        console.log('⚠️  Twilio não configurado. Mensagens WhatsApp serão simuladas.');
-        this.client = null;
-      }
+  }
+
+  /**
+   * Inicializa a sessão do WPPConnect (singleton).
+   * Exibe QR Code no terminal para escanear com o WhatsApp.
+   * A sessão é salva em disco para reconexão automática.
+   */
+  static async inicializar(): Promise<void> {
+    if (WhatsAppService.client || WhatsAppService.initializing) return;
+    WhatsAppService.initializing = true;
+
+    try {
+      console.log('');
+      console.log('📱 Iniciando WPPConnect...');
+      console.log('📱 Escaneie o QR Code abaixo com seu WhatsApp:');
+      console.log('');
+
+      const client = await wppconnect.create({
+        session: 'barbearia-session',
+        folderNameToken: path.resolve(__dirname, '..', '..', 'tokens'),
+        headless: true,
+        autoClose: 0,
+        puppeteerOptions: {
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        },
+        logQR: true,
+        catchQR: (base64Qr, asciiQR) => {
+          console.log('');
+          console.log('═══════════════════════════════════════');
+          console.log('  📱 ESCANEIE O QR CODE COM O WHATSAPP');
+          console.log('═══════════════════════════════════════');
+          console.log(asciiQR);
+          console.log('═══════════════════════════════════════');
+          console.log('');
+        },
+        statusFind: (statusSession) => {
+          console.log(`📱 Status da sessão: ${statusSession}`);
+        },
+      });
+
+      WhatsAppService.client = client;
+      WhatsAppService.ready = true;
+      WhatsAppService.initializing = false;
+
+      console.log('✅ WPPConnect conectado com sucesso!');
+      console.log('');
+    } catch (error: any) {
+      WhatsAppService.initializing = false;
+      WhatsAppService.ready = false;
+      console.error('❌ Erro ao inicializar WPPConnect:', error.message);
+      console.log('⚠️  Mensagens serão simuladas no console até reconectar.');
     }
+  }
+
+  /** Retorna true se o WPPConnect está conectado */
+  static isConnected(): boolean {
+    return WhatsAppService.ready && WhatsAppService.client !== null;
   }
 
   async enviarNotificacaoAgendamento(agendamento: {
@@ -82,8 +132,25 @@ export class WhatsAppService {
     await this.enviarMensagem(agendamento.telefoneCliente, message);
   }
 
+  /**
+   * Formata o número para o padrão internacional do WhatsApp.
+   * Aceita: 67999999999, (67)99999-9999, +5567999999999, 5567999999999
+   * Retorna: 5567999999999@c.us
+   */
+  private formatarNumero(telefone: string): string {
+    // Remove tudo que não é dígito
+    let numero = telefone.replace(/\D/g, '');
+
+    // Se não começa com 55 (Brasil), adiciona
+    if (!numero.startsWith('55')) {
+      numero = `55${numero}`;
+    }
+
+    return `${numero}@c.us`;
+  }
+
   private async enviarMensagem(to: string, body: string) {
-    if (!this.client) {
+    if (!WhatsAppService.isConnected()) {
       console.log(`📱 [SIMULADO] Mensagem para ${to}:`);
       console.log(body);
       console.log('---');
@@ -91,15 +158,9 @@ export class WhatsAppService {
     }
 
     try {
-      const toNumber = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
-      
-      await this.client.messages.create({
-        from: env.TWILIO_WHATSAPP_FROM,
-        to: toNumber,
-        body,
-      });
-      
-      console.log(`✅ Mensagem enviada para ${to}`);
+      const chatId = this.formatarNumero(to);
+      await WhatsAppService.client!.sendText(chatId, body);
+      console.log(`✅ Mensagem WhatsApp enviada para ${to}`);
     } catch (error: any) {
       console.error(`❌ Erro ao enviar mensagem para ${to}:`, error.message);
     }
