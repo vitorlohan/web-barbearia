@@ -5,7 +5,7 @@
  * Service - WhatsApp (WPPConnect)
  */
 
-import wppconnect from '@wppconnect-team/wppconnect';
+import * as wppconnect from '@wppconnect-team/wppconnect';
 import path from 'path';
 import { ConfiguracaoRepository } from '../repositories';
 import { buildWhatsAppMessage, formatDate } from '../utils/helpers';
@@ -15,6 +15,7 @@ export class WhatsAppService {
   private static initializing = false;
   private static ready = false;
   private static qrCode: string | null = null;
+  private static lastError: string | null = null;
   private configuracaoRepository: ConfiguracaoRepository;
 
   constructor() {
@@ -30,6 +31,7 @@ export class WhatsAppService {
     if (WhatsAppService.client || WhatsAppService.initializing) return;
     WhatsAppService.initializing = true;
     WhatsAppService.qrCode = null;
+    WhatsAppService.lastError = null;
 
     try {
       console.log('');
@@ -69,6 +71,7 @@ export class WhatsAppService {
     } catch (error: any) {
       WhatsAppService.initializing = false;
       WhatsAppService.ready = false;
+      WhatsAppService.lastError = error.message || 'Erro desconhecido';
       console.error('❌ Erro ao inicializar WPPConnect:', error.message);
       console.log('⚠️  Mensagens serão simuladas no console até reconectar.');
     }
@@ -82,6 +85,11 @@ export class WhatsAppService {
   /** Retorna o QR Code em base64 (ou null se já conectado/não disponível) */
   static getQrCode(): string | null {
     return WhatsAppService.qrCode;
+  }
+
+  /** Retorna o último erro ocorrido (ou null) */
+  static getLastError(): string | null {
+    return WhatsAppService.lastError;
   }
 
   /** Retorna true se está no processo de inicialização */

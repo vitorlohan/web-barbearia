@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { FaSave, FaWhatsapp, FaPlus, FaTimes, FaCircle, FaSyncAlt } from 'react-icons/fa';
+import { FaSave, FaWhatsapp, FaPlus, FaTimes, FaCircle, FaSyncAlt, FaTimesCircle } from 'react-icons/fa';
 import { configuracaoService } from '../../../services/configuracaoService';
 
 interface Configuracao {
@@ -33,6 +33,7 @@ export function ConfiguracaoPage() {
   const [wppInitializing, setWppInitializing] = useState(false);
   const [wppQrCode, setWppQrCode] = useState<string | null>(null);
   const [reconnecting, setReconnecting] = useState(false);
+  const [wppError, setWppError] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadConfig = async () => {
@@ -59,15 +60,27 @@ export function ConfiguracaoPage() {
   const loadWppStatus = useCallback(async () => {
     try {
       const response = await configuracaoService.getWhatsAppStatus();
-      const { connected, initializing, hasQrCode } = response.data.data;
+      const { connected, initializing, hasQrCode, error } = response.data.data;
       setWppConnected(connected);
       setWppInitializing(initializing);
 
       if (connected) {
         setWppQrCode(null);
+        setWppError(null);
+        setReconnecting(false);
         stopPolling();
         return;
       }
+
+      // Se houve erro, parar polling e mostrar
+      if (error && !initializing) {
+        setWppError(error);
+        setReconnecting(false);
+        stopPolling();
+        return;
+      }
+
+      setWppError(null);
 
       // Se tem QR Code disponível, buscar
       if (hasQrCode) {
@@ -89,19 +102,29 @@ export function ConfiguracaoPage() {
     pollingRef.current = setInterval(async () => {
       try {
         const response = await configuracaoService.getWhatsAppStatus();
-        const { connected, initializing, hasQrCode } = response.data.data;
+        const { connected, initializing, hasQrCode, error } = response.data.data;
         setWppConnected(connected);
         setWppInitializing(initializing);
 
         if (connected) {
           setWppQrCode(null);
+          setWppError(null);
           setReconnecting(false);
           stopPolling();
           toast.success('WhatsApp conectado!');
           return;
         }
 
+        // Se houve erro, parar polling
+        if (error && !initializing) {
+          setWppError(error);
+          setReconnecting(false);
+          stopPolling();
+          return;
+        }
+
         if (hasQrCode) {
+          setWppError(null);
           const qrResponse = await configuracaoService.getWhatsAppQrCode();
           setWppQrCode(qrResponse.data.data.qrCode);
         }
@@ -121,10 +144,10 @@ export function ConfiguracaoPage() {
   const handleReconnect = async () => {
     setReconnecting(true);
     setWppQrCode(null);
+    setWppError(null);
     try {
       await configuracaoService.reconnectWhatsApp();
       toast.info('Reconexão iniciada. Aguarde o QR Code...');
-      // Começa polling para aguardar o QR Code
       startPolling();
     } catch {
       toast.error('Erro ao reconectar WhatsApp');
@@ -218,12 +241,12 @@ export function ConfiguracaoPage() {
             background: 'var(--color-bg-card)',
             border: `1px solid ${wppConnected ? '#25D366' : 'var(--color-border)'}`,
             borderRadius: '0.5rem',
-            marginBottom: wppQrCode || wppInitializing || reconnecting ? '1rem' : 0,
+            marginBottom: wppQrCode || wppInitializing || reconnecting || wppError ? '1rem' : 0,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <FaCircle
                 size={10}
-                color={wppConnected === null ? '#8A8A8A' : wppConnected ? '#25D366' : wppInitializing || reconnecting ? '#f39c12' : '#e74c3c'}
+                color={wppConnected === null ? '#8A8A8A' : wppConnected ? '#25D366' : wppInitializing || reconnecting ? '#f39c12' : wppError ? '#dc3545' : '#e74c3c'}
               />
               <span style={{ fontSize: '0.95rem' }}>
                 {wppConnected === null
@@ -232,10 +255,12 @@ export function ConfiguracaoPage() {
                     ? 'WhatsApp conectado — Mensagens ativas'
                     : wppInitializing || reconnecting
                       ? 'Aguardando conexão...'
-                      : 'WhatsApp desconectado'}
+                      : wppError
+                        ? 'Erro na conexão'
+                        : 'WhatsApp desconectado'}
               </span>
             </div>
-            {!wppConnected && !wppInitializing && !reconnecting && (
+            {!wppConnected && !wppInitializing && !reconnecting && !wppError && (
               <button
                 type="button"
                 onClick={handleReconnect}
@@ -280,7 +305,7 @@ export function ConfiguracaoPage() {
           )}
 
           {/* Estado de carregamento */}
-          {(wppInitializing || reconnecting) && !wppQrCode && !wppConnected && (
+          {(wppInitializing || reconnecting) && !wppQrCode && !wppConnected && !wppError && (
             <div style={{
               textAlign: 'center',
               padding: '2rem',
@@ -291,6 +316,39 @@ export function ConfiguracaoPage() {
             }}>
               <FaSyncAlt style={{ animation: 'spin 1s linear infinite', marginBottom: '0.5rem' }} size={24} />
               <p>Iniciando WPPConnect... Aguarde o QR Code.</p>
+            </div>
+          )}
+
+          {/* Estado de erro */}
+          {wppError && !wppConnected && !wppInitializing && !reconnecting && (
+            <div style={{
+              textAlign: 'center',
+              padding: '2rem',
+              background: 'rgba(220, 53, 69, 0.1)',
+              borderRadius: '0.5rem',
+              border: '1px solid rgba(220, 53, 69, 0.3)',
+            }}>
+              <FaTimesCircle color="#dc3545" size={28} style={{ marginBottom: '0.5rem' }} />
+              <p style={{ color: '#dc3545', fontWeight: 600, marginBottom: '0.5rem' }}>
+                Falha ao conectar o WhatsApp
+              </p>
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                {wppError}
+              </p>
+              <button
+                onClick={handleReconnect}
+                style={{
+                  background: 'var(--color-primary)',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '0.5rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                Tentar novamente
+              </button>
             </div>
           )}
         </div>

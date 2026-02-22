@@ -51,6 +51,7 @@ export class ConfiguracaoController {
         connected: WhatsAppService.isConnected(),
         initializing: WhatsAppService.isInitializing(),
         hasQrCode: WhatsAppService.getQrCode() !== null,
+        error: WhatsAppService.getLastError(),
       },
     });
   };
