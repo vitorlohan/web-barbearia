@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { FaSave, FaWhatsapp, FaPlus, FaTimes } from 'react-icons/fa';
+import { FaSave, FaWhatsapp, FaPlus, FaTimes, FaCircle } from 'react-icons/fa';
 import { configuracaoService } from '../../../services/configuracaoService';
 
 interface Configuracao {
@@ -15,7 +15,7 @@ interface Configuracao {
   whatsappPrincipal: string;
   whatsappSecundarios: string[];
   enviarLembrete: boolean;
-  mensagemPersonalizada: string;
+  mensagemPersonalizada?: string;
 }
 
 export function ConfiguracaoPage() {
@@ -29,6 +29,7 @@ export function ConfiguracaoPage() {
   const [novoNumero, setNovoNumero] = useState('');
   const [enviarLembrete, setEnviarLembrete] = useState(true);
   const [mensagemPersonalizada, setMensagemPersonalizada] = useState('');
+  const [wppConnected, setWppConnected] = useState<boolean | null>(null);
 
   const loadConfig = async () => {
     try {
@@ -47,7 +48,17 @@ export function ConfiguracaoPage() {
 
   useEffect(() => {
     loadConfig();
+    loadWppStatus();
   }, []);
+
+  const loadWppStatus = async () => {
+    try {
+      const response = await configuracaoService.getWhatsAppStatus();
+      setWppConnected(response.data.data.connected);
+    } catch {
+      setWppConnected(false);
+    }
+  };
 
   const handleAddNumero = () => {
     const numero = novoNumero.replace(/\D/g, '');
@@ -119,6 +130,34 @@ export function ConfiguracaoPage() {
       </div>
 
       <form onSubmit={handleSubmit}>
+        {/* Status do WhatsApp */}
+        <div className="admin-form" style={{ marginBottom: '2rem' }}>
+          <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <FaWhatsapp color="#25D366" /> Status do WhatsApp
+          </h3>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '1rem',
+            background: 'var(--color-bg-card)',
+            border: `1px solid ${wppConnected ? '#25D366' : 'var(--color-border)'}`,
+            borderRadius: '0.5rem',
+          }}>
+            <FaCircle
+              size={10}
+              color={wppConnected === null ? '#8A8A8A' : wppConnected ? '#25D366' : '#e74c3c'}
+            />
+            <span style={{ fontSize: '0.95rem' }}>
+              {wppConnected === null
+                ? 'Verificando conexão...'
+                : wppConnected
+                  ? 'WPPConnect conectado — Mensagens serão enviadas via WhatsApp'
+                  : 'WPPConnect desconectado — Escaneie o QR Code no terminal do backend'}
+            </span>
+          </div>
+        </div>
+
         {/* WhatsApp Principal */}
         <div className="admin-form" style={{ marginBottom: '2rem' }}>
           <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -210,7 +249,7 @@ export function ConfiguracaoPage() {
               />
               <span className="toggle-label">
                 {enviarLembrete
-                  ? 'Lembretes ativados — Clientes receberão lembrete 30 min antes'
+                  ? 'Lembretes ativados — Clientes receberão lembrete 1 hora antes'
                   : 'Lembretes desativados'}
               </span>
             </div>
@@ -221,7 +260,8 @@ export function ConfiguracaoPage() {
         <div className="admin-form" style={{ marginBottom: '2rem' }}>
           <h3 style={{ marginBottom: '1rem' }}>Mensagem Personalizada</h3>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-            Mensagem de confirmação enviada ao cliente. Use as variáveis: {'{nome}'}, {'{servico}'}, {'{data}'}, {'{horario}'}, {'{preco}'}
+            Mensagem de notificação enviada para os números acima quando um novo agendamento é criado.
+            Use as variáveis: {'{nome}'}, {'{servico}'}, {'{data}'}, {'{horario}'}, {'{preco}'}
           </p>
           <div className="form-group">
             <textarea

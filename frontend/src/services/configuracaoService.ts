@@ -26,4 +26,7 @@ export const configuracaoService = {
 
   getWhatsApp: () =>
     api.get<{ status: string; data: { whatsapp: string } }>('/configuracao/whatsapp'),
+
+  getWhatsAppStatus: () =>
+    api.get<{ status: string; data: { connected: boolean } }>('/configuracao/whatsapp-status'),
 };

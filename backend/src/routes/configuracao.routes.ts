@@ -18,5 +18,6 @@ router.get('/whatsapp', configuracaoController.getWhatsApp);
 // Rotas protegidas (admin)
 router.get('/', authMiddleware, configuracaoController.buscar);
 router.put('/', authMiddleware, configuracaoController.atualizar);
+router.get('/whatsapp-status', authMiddleware, configuracaoController.getWhatsAppStatus);
 
 export default router;

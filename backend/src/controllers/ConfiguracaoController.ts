@@ -6,7 +6,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { ConfiguracaoService } from '../services';
+import { ConfiguracaoService, WhatsAppService } from '../services';
 import { updateConfiguracaoDTO } from '../dtos';
 
 export class ConfiguracaoController {
@@ -42,5 +42,14 @@ export class ConfiguracaoController {
     } catch (error) {
       next(error);
     }
+  };
+
+  getWhatsAppStatus = async (_req: Request, res: Response): Promise<void> => {
+    res.json({
+      status: 'success',
+      data: {
+        connected: WhatsAppService.isConnected(),
+      },
+    });
   };
 }
