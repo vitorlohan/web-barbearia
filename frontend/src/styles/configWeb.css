@@ -1,0 +1,607 @@
+/* Configuração Web - Admin Page */
+
+.config-web-page .admin-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.config-web-page .admin-page-header h1 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--color-primary);
+}
+
+/* Tabs */
+.config-web-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.config-web-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.config-web-tab:hover {
+  color: var(--color-text);
+  background: rgba(212, 168, 67, 0.05);
+}
+
+.config-web-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* Form Grid */
+.config-web-form-section {
+  background: var(--color-bg-section);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.config-web-form-section h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.config-web-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.config-web-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.config-web-form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.config-web-form-group input[type="text"],
+.config-web-form-group input[type="url"],
+.config-web-form-group input[type="number"],
+.config-web-form-group textarea {
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+  font-family: var(--font-body);
+}
+
+.config-web-form-group input:focus,
+.config-web-form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(212, 168, 67, 0.15);
+}
+
+.config-web-form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.config-web-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Color picker */
+.config-web-color-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.config-web-color-row input[type="color"] {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  width: 40px;
+  height: 36px;
+  cursor: pointer;
+  background: transparent;
+  padding: 2px;
+}
+
+.config-web-color-row input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.config-web-color-row input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+.config-web-color-row input[type="text"] {
+  flex: 1;
+}
+
+/* Image Upload */
+.config-web-image-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.config-web-image-preview {
+  width: 100%;
+  max-width: 260px;
+  height: 140px;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--color-bg-dark);
+  position: relative;
+}
+
+.config-web-image-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.config-web-image-preview .placeholder {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.config-web-image-upload .upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  width: fit-content;
+}
+
+.config-web-image-upload .upload-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.config-web-image-upload .upload-btn.uploading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Logo preview (smaller) */
+.config-web-logo-preview {
+  height: 80px;
+  max-width: 200px;
+  background: var(--color-bg-dark);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.config-web-logo-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Save button */
+.config-web-save-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--color-bg-section);
+  border-top: 1px solid var(--color-border);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin: 0 -1.5rem -1rem;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.config-web-save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.75rem;
+  background: var(--color-primary);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.config-web-save-btn:hover {
+  background: var(--color-primary-light);
+}
+
+.config-web-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* CRUD List / Cards for Equipe & Unidades */
+.config-web-crud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.config-web-crud-header h3 {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.config-web-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.config-web-add-btn:hover {
+  background: var(--color-primary-light);
+}
+
+.config-web-crud-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.config-web-crud-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  transition: var(--transition-fast);
+}
+
+.config-web-crud-item:hover {
+  border-color: var(--color-primary);
+}
+
+.config-web-crud-item-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-bg-section);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.config-web-crud-item-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.config-web-crud-item-img .no-img {
+  color: var(--color-text-muted);
+  font-size: 1.2rem;
+}
+
+.config-web-crud-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.config-web-crud-item-info h4 {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  margin-bottom: 0.15rem;
+}
+
+.config-web-crud-item-info p {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.config-web-crud-item-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.config-web-crud-item-actions button {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-size: 0.85rem;
+}
+
+.config-web-crud-item-actions button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.config-web-crud-item-actions button.delete:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.config-web-crud-item .badge-active {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+  font-weight: 600;
+}
+
+.config-web-crud-item .badge-inactive {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+/* Modal / Inline Form */
+.config-web-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.config-web-modal {
+  background: var(--color-bg-section);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.config-web-modal h3 {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.config-web-modal .config-web-form-group {
+  margin-bottom: 0.75rem;
+}
+
+.config-web-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.config-web-modal-actions .cancel-btn {
+  padding: 0.5rem 1.25rem;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+}
+
+.config-web-modal-actions .cancel-btn:hover {
+  color: var(--color-text);
+}
+
+.config-web-modal-actions .save-btn {
+  padding: 0.5rem 1.25rem;
+  background: var(--color-primary);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+}
+
+.config-web-modal-actions .save-btn:hover {
+  background: var(--color-primary-light);
+}
+
+.config-web-modal-actions .save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Toggle switch */
+.config-web-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.config-web-toggle input {
+  display: none;
+}
+
+.config-web-toggle .toggle-track {
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--color-border);
+  position: relative;
+  transition: var(--transition-fast);
+}
+
+.config-web-toggle .toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  transition: var(--transition-fast);
+}
+
+.config-web-toggle input:checked + .toggle-track {
+  background: var(--color-primary);
+}
+
+.config-web-toggle input:checked + .toggle-track::after {
+  left: 21px;
+  background: #000;
+}
+
+/* Preview palette */
+.config-web-palette-preview {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.config-web-palette-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  position: relative;
+}
+
+.config-web-palette-swatch span {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* Unidade card variant */
+.config-web-crud-item.unidade-item .config-web-crud-item-img {
+  width: 80px;
+  height: 56px;
+  border-radius: var(--radius-md);
+}
+
+/* Size hint */
+.config-web-size-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(212, 168, 67, 0.06);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 0 6px 6px 0;
+}
+
+.config-web-size-hint strong {
+  color: var(--color-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .config-web-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .config-web-tab {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .config-web-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .config-web-crud-item {
+    flex-wrap: wrap;
+  }
+
+  .config-web-modal {
+    max-width: 95%;
+  }
+}

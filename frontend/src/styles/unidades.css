@@ -1,0 +1,73 @@
+/* Unidades Section */
+.unidades {
+  padding: 6rem 0;
+  background: var(--color-bg-white);
+}
+
+.unidades .section-title {
+  color: var(--color-text-dark);
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.unidades-grid {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.unidade-card {
+  width: 340px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transition: var(--transition-base);
+  position: relative;
+}
+
+.unidade-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-xl);
+}
+
+.unidade-card img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
+
+.unidade-card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  padding: 3rem 1.5rem 1.5rem;
+  text-align: center;
+}
+
+.unidade-card-info h3 {
+  font-size: 1rem;
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
+.unidade-card-info p {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .unidades-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .unidade-card {
+    width: 100%;
+    max-width: 400px;
+  }
+}

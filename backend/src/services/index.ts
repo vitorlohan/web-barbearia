@@ -1,0 +1,11 @@
+export { AuthService } from './AuthService';
+export { ServicoService } from './ServicoService';
+export { AgendamentoService } from './AgendamentoService';
+export { ConfiguracaoService } from './ConfiguracaoService';
+export { WhatsAppService } from './WhatsAppService';
+export { HorarioBloqueadoService } from './HorarioBloqueadoService';
+export { CronService } from './CronService';
+export { UploadService } from './UploadService';
+export { ConfiguracaoWebService } from './ConfiguracaoWebService';
+export { MembroEquipeService } from './MembroEquipeService';
+export { UnidadeService } from './UnidadeService';

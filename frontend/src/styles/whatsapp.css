@@ -1,0 +1,40 @@
+/* WhatsApp Widget */
+.whatsapp-widget {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 999;
+}
+
+.whatsapp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: #25D366;
+  border-radius: 50%;
+  color: white;
+  font-size: 1.8rem;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+  transition: var(--transition-base);
+  animation: pulse 2s infinite;
+}
+
+.whatsapp-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+}
+
+@media (max-width: 768px) {
+  .whatsapp-widget {
+    bottom: 1.5rem;
+    right: 1.5rem;
+  }
+
+  .whatsapp-btn {
+    width: 55px;
+    height: 55px;
+    font-size: 1.5rem;
+  }
+}

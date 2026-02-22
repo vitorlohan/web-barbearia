@@ -1,0 +1,203 @@
+/* Modal de Agendamento */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal {
+  background: var(--color-bg-section);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  position: relative;
+  animation: fadeInUp 0.4s ease;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  color: var(--color-text-white);
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  transition: var(--transition-fast);
+}
+
+.modal-close:hover {
+  color: var(--color-primary);
+}
+
+.modal h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-light);
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.75rem 1rem;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-white);
+  font-size: 0.95rem;
+  transition: var(--transition-fast);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(212, 168, 67, 0.2);
+}
+
+.form-group select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239CA3AF' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+.form-group select option {
+  background: var(--color-bg-section);
+  color: var(--color-text-white);
+}
+
+.form-error {
+  font-size: 0.75rem;
+  color: var(--color-danger);
+}
+
+/* Horários Grid */
+.horarios-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-light);
+  margin-bottom: 0.5rem;
+}
+
+.horarios-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.horario-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-light);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: var(--transition-fast);
+}
+
+.horario-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.horario-btn.selected {
+  background: var(--color-primary);
+  color: var(--color-bg-dark);
+  border-color: var(--color-primary);
+  font-weight: 700;
+}
+
+.horario-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Botão de submit */
+.btn-agendar {
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--color-primary);
+  color: var(--color-bg-dark);
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-md);
+  transition: var(--transition-base);
+  margin-top: 0.5rem;
+}
+
+.btn-agendar:hover {
+  background: var(--color-primary-light);
+  box-shadow: var(--shadow-gold);
+}
+
+.btn-agendar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sucesso */
+.modal-sucesso {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.modal-sucesso-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-lg);
+}
+
+.modal-sucesso h2 {
+  color: var(--color-primary);
+  margin-bottom: var(--space-md);
+}
+
+.modal-sucesso p {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2xl);
+}
+
+.btn-voltar {
+  padding: 0.75rem 2rem;
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: var(--transition-base);
+}
+
+.btn-voltar:hover {
+  background: var(--color-primary);
+  color: var(--color-bg-dark);
+}

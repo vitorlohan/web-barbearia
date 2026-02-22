@@ -1,0 +1,8 @@
+export { AdminRepository } from './AdminRepository';
+export { ServicoRepository } from './ServicoRepository';
+export { AgendamentoRepository } from './AgendamentoRepository';
+export { ConfiguracaoRepository } from './ConfiguracaoRepository';
+export { HorarioBloqueadoRepository } from './HorarioBloqueadoRepository';
+export { ConfiguracaoWebRepository } from './ConfiguracaoWebRepository';
+export { MembroEquipeRepository } from './MembroEquipeRepository';
+export { UnidadeRepository } from './UnidadeRepository';

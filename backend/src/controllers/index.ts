@@ -1,0 +1,8 @@
+export { AuthController } from './AuthController';
+export { ServicoController } from './ServicoController';
+export { AgendamentoController } from './AgendamentoController';
+export { ConfiguracaoController } from './ConfiguracaoController';
+export { HorarioBloqueadoController } from './HorarioBloqueadoController';
+export { ConfiguracaoWebController } from './ConfiguracaoWebController';
+export { MembroEquipeController } from './MembroEquipeController';
+export { UnidadeController } from './UnidadeController';

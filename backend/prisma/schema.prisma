@@ -1,0 +1,151 @@
+// Sistema desenvolvido por Vitor Lohan
+// Todos os direitos reservados.
+// Schema Prisma - Banco de Dados PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("admins")
+}
+
+model Servico {
+  id             String        @id @default(uuid())
+  nome           String
+  descricao      String?
+  preco          Float
+  duracaoMinutos Int           @map("duracao_minutos")
+  imagem         String?
+  ativo          Boolean       @default(true)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  agendamentos   Agendamento[]
+
+  @@map("servicos")
+}
+
+enum StatusAgendamento {
+  AGENDADO
+  CANCELADO
+  FINALIZADO
+}
+
+model Agendamento {
+  id              String              @id @default(uuid())
+  nomeCliente     String              @map("nome_cliente")
+  telefoneCliente String              @map("telefone_cliente")
+  servicoId       String              @map("servico_id")
+  servico         Servico             @relation(fields: [servicoId], references: [id])
+  data            DateTime
+  horario         String
+  status          StatusAgendamento   @default(AGENDADO)
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  @@map("agendamentos")
+}
+
+model Configuracao {
+  id                    String   @id @default(uuid())
+  whatsappPrincipal     String   @map("whatsapp_principal")
+  whatsappSecundarios   String[] @map("whatsapp_secundarios")
+  enviarLembrete        Boolean  @default(true) @map("enviar_lembrete")
+  mensagemPersonalizada String?  @map("mensagem_personalizada")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracoes")
+}
+
+model HorarioBloqueado {
+  id        String   @id @default(uuid())
+  data      DateTime
+  horario   String
+  motivo    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("horarios_bloqueados")
+}
+
+model ConfiguracaoWeb {
+  id                 String   @id @default(uuid())
+
+  // Logo
+  logoHeaderUrl      String?  @map("logo_header_url")
+  logoHeaderWidth    Int      @default(150) @map("logo_header_width")
+  logoHeaderHeight   Int      @default(50)  @map("logo_header_height")
+  logoFooterUrl      String?  @map("logo_footer_url")
+  logoFooterWidth    Int      @default(150) @map("logo_footer_width")
+  logoFooterHeight   Int      @default(50)  @map("logo_footer_height")
+
+  // Paleta de cores
+  corPrimaria        String   @default("#D4A843") @map("cor_primaria")
+  corPrimariaLight   String   @default("#E8C76A") @map("cor_primaria_light")
+  corBackground      String   @default("#0D0D0D") @map("cor_background")
+  corBackgroundCard  String   @default("#1A1A1A") @map("cor_background_card")
+  corTexto           String   @default("#F5F5F5") @map("cor_texto")
+  corTextoMuted      String   @default("#8A8A8A") @map("cor_texto_muted")
+  corBorda           String   @default("#2A2A2A") @map("cor_borda")
+
+  // Sobre
+  sobreTitulo        String?  @map("sobre_titulo")
+  sobreTexto1        String?  @map("sobre_texto1") @db.Text
+  sobreTexto2        String?  @map("sobre_texto2") @db.Text
+  sobreImagem1       String?  @map("sobre_imagem1")
+  sobreImagem2       String?  @map("sobre_imagem2")
+  sobreImagem3       String?  @map("sobre_imagem3")
+  sobreHorario       String?  @map("sobre_horario")
+
+  // Redes Sociais
+  instagramUrl       String?  @map("instagram_url")
+  facebookUrl        String?  @map("facebook_url")
+  youtubeUrl         String?  @map("youtube_url")
+  twitterUrl         String?  @map("twitter_url")
+
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracoes_web")
+}
+
+model MembroEquipe {
+  id             String   @id @default(uuid())
+  nome           String
+  cargo          String?
+  imagem         String?
+  instagramUrl   String?  @map("instagram_url")
+  facebookUrl    String?  @map("facebook_url")
+  twitterUrl     String?  @map("twitter_url")
+  ordem          Int      @default(0)
+  ativo          Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("membros_equipe")
+}
+
+model Unidade {
+  id        String   @id @default(uuid())
+  nome      String
+  cidade    String
+  endereco  String?
+  imagem    String?
+  ordem     Int      @default(0)
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("unidades")
+}
