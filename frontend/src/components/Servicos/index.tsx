@@ -9,14 +9,6 @@ import { useEffect, useState } from 'react';
 import { servicoService, Servico } from '../../services/servicoService';
 import '../../styles/servicos.css';
 
-const imagensPadrao = [
-  'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=500&q=80',
-  'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80',
-  'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80',
-  'https://images.unsplash.com/photo-1585747860873-cf6d02f8f7d1?w=500&q=80',
-  'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&q=80',
-];
-
 export function Servicos() {
   const [servicos, setServicos] = useState<Servico[]>([]);
 
@@ -24,14 +16,9 @@ export function Servicos() {
     async function load() {
       try {
         const response = await servicoService.listarPublico();
-        setServicos(response.data.data);
+        setServicos(response.data.data.filter((s: Servico) => s.imagem));
       } catch {
-        // Fallback data caso API não esteja disponível
-        setServicos([
-          { id: '1', nome: 'Corte de cabelo', descricao: '', preco: 55.90, duracaoMinutos: 40, ativo: true, createdAt: '', updatedAt: '' },
-          { id: '2', nome: 'Corte completo', descricao: '', preco: 75.90, duracaoMinutos: 60, ativo: true, createdAt: '', updatedAt: '' },
-          { id: '3', nome: 'Corte & Barba', descricao: '', preco: 85.90, duracaoMinutos: 70, ativo: true, createdAt: '', updatedAt: '' },
-        ]);
+        setServicos([]);
       }
     }
     load();
@@ -51,11 +38,11 @@ export function Servicos() {
         </p>
 
         <div className="servicos-grid">
-          {servicos.map((servico, index) => (
+          {servicos.map((servico) => (
             <div key={servico.id} className="servico-card">
               <div className="servico-card-image">
                 <img
-                  src={servico.imagem || imagensPadrao[index % imagensPadrao.length]}
+                  src={servico.imagem!}
                   alt={servico.nome}
                 />
               </div>
