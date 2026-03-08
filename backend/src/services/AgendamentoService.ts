@@ -5,7 +5,7 @@
  * Service - Agendamento
  */
 
-import { AgendamentoRepository, HorarioBloqueadoRepository } from '../repositories';
+import { AgendamentoRepository, HorarioBloqueadoRepository, DisponibilidadeRepository } from '../repositories';
 import { CreateAgendamentoDTO } from '../dtos';
 import { AppError } from '../utils/AppError';
 import { generateTimeSlots } from '../utils/helpers';
@@ -16,12 +16,14 @@ import { StatusAgendamento } from '@prisma/client';
 export class AgendamentoService {
   private agendamentoRepository: AgendamentoRepository;
   private horarioBloqueadoRepository: HorarioBloqueadoRepository;
+  private disponibilidadeRepository: DisponibilidadeRepository;
   private whatsAppService: WhatsAppService;
   private servicoService: ServicoService;
 
   constructor() {
     this.agendamentoRepository = new AgendamentoRepository();
     this.horarioBloqueadoRepository = new HorarioBloqueadoRepository();
+    this.disponibilidadeRepository = new DisponibilidadeRepository();
     this.whatsAppService = new WhatsAppService();
     this.servicoService = new ServicoService();
   }
@@ -63,7 +65,7 @@ export class AgendamentoService {
       throw new AppError('Serviço não está disponível', 400);
     }
 
-    const dataAgendamento = new Date(data.data);
+    const dataAgendamento = new Date(data.data + 'T12:00:00');
 
     // Verificar se a data não é no passado
     const hoje = new Date();
@@ -72,14 +74,26 @@ export class AgendamentoService {
       throw new AppError('Não é possível agendar em datas passadas', 400);
     }
 
-    // Verificar conflito de horário
-    const conflito = await this.agendamentoRepository.findByDataHorario(
+    // Verificar se o dia da semana está disponível
+    const diaSemana = dataAgendamento.getDay();
+    const disponibilidade = await this.disponibilidadeRepository.findByDia(diaSemana);
+    if (!disponibilidade || !disponibilidade.ativo) {
+      throw new AppError('Este dia da semana não está disponível para agendamentos', 400);
+    }
+
+    // Verificar se o horário está dentro do intervalo configurado
+    if (data.horario < disponibilidade.horaInicio || data.horario >= disponibilidade.horaFim) {
+      throw new AppError('Horário fora do expediente configurado', 400);
+    }
+
+    // Verificar capacidade do horário (quantidade de barbeiros)
+    const agendamentosNoHorario = await this.agendamentoRepository.countByDataHorario(
       dataAgendamento,
       data.horario
     );
 
-    if (conflito) {
-      throw new AppError('Este horário já está ocupado. Escolha outro horário.', 409);
+    if (agendamentosNoHorario >= disponibilidade.maxAgendamentos) {
+      throw new AppError('Este horário já está lotado. Escolha outro horário.', 409);
     }
 
     // Verificar se o horário está bloqueado
@@ -115,7 +129,7 @@ export class AgendamentoService {
   }
 
   async horariosDisponiveis(data: string) {
-    const dataObj = new Date(data);
+    const dataObj = new Date(data + 'T12:00:00');
     
     // Verificar se é dia passado
     const hoje = new Date();
@@ -124,11 +138,22 @@ export class AgendamentoService {
       return [];
     }
 
-    // Gerar todos os horários possíveis
-    const todosHorarios = generateTimeSlots('09:00', '18:00', 30);
+    // Verificar disponibilidade do dia da semana
+    const diaSemana = dataObj.getDay();
+    const disponibilidade = await this.disponibilidadeRepository.findByDia(diaSemana);
+    if (!disponibilidade || !disponibilidade.ativo) {
+      return [];
+    }
 
-    // Buscar horários ocupados
-    const ocupados = await this.agendamentoRepository.getOccupiedSlots(dataObj);
+    // Gerar horários com base na configuração do dia
+    const todosHorarios = generateTimeSlots(
+      disponibilidade.horaInicio,
+      disponibilidade.horaFim,
+      disponibilidade.intervaloMinutos
+    );
+
+    // Buscar contagem de agendamentos por horário
+    const slotCounts = await this.agendamentoRepository.getSlotCounts(dataObj);
 
     // Buscar horários bloqueados
     const bloqueados = await this.horarioBloqueadoRepository.getBlockedSlots(dataObj);
@@ -138,7 +163,10 @@ export class AgendamentoService {
     const isHoje = dataObj.toDateString() === agora.toDateString();
 
     const disponiveis = todosHorarios.filter((horario) => {
-      if (ocupados.includes(horario)) return false;
+      // Verificar se o horário está lotado (capacidade)
+      const count = slotCounts[horario] || 0;
+      if (count >= disponibilidade.maxAgendamentos) return false;
+
       if (bloqueados.includes(horario)) return false;
 
       if (isHoje) {

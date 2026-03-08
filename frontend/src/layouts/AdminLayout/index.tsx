@@ -18,6 +18,7 @@ import {
   FaTimes,
   FaClock,
   FaGlobe,
+  FaCalendarCheck,
 } from 'react-icons/fa';
 import '../../styles/admin.css';
 
@@ -26,6 +27,7 @@ const navItems = [
   { path: '/admin/agendamentos', label: 'Agendamentos', icon: <FaCalendarAlt /> },
   { path: '/admin/servicos', label: 'Serviços', icon: <FaCut /> },
   { path: '/admin/horarios', label: 'Horários Bloqueados', icon: <FaClock /> },
+  { path: '/admin/disponibilidade', label: 'Disponibilidade', icon: <FaCalendarCheck /> },
   { path: '/admin/configuracoes', label: 'Configurações', icon: <FaCog /> },
   { path: '/admin/config-web', label: 'Configuração Web', icon: <FaGlobe /> },
 ];

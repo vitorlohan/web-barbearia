@@ -198,4 +198,40 @@ export class AgendamentoRepository {
 
     return agendamentos.map((a) => a.horario);
   }
+
+  async countByDataHorario(data: Date, horario: string) {
+    const startOfDay = new Date(data);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(data);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return prisma.agendamento.count({
+      where: {
+        data: { gte: startOfDay, lte: endOfDay },
+        horario,
+        status: { not: 'CANCELADO' },
+      },
+    });
+  }
+
+  async getSlotCounts(data: Date): Promise<Record<string, number>> {
+    const startOfDay = new Date(data);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(data);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const agendamentos = await prisma.agendamento.findMany({
+      where: {
+        data: { gte: startOfDay, lte: endOfDay },
+        status: { not: 'CANCELADO' },
+      },
+      select: { horario: true },
+    });
+
+    const counts: Record<string, number> = {};
+    for (const a of agendamentos) {
+      counts[a.horario] = (counts[a.horario] || 0) + 1;
+    }
+    return counts;
+  }
 }

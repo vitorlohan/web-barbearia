@@ -14,6 +14,7 @@ import horarioBloqueadoRoutes from './horarioBloqueado.routes';
 import configWebRoutes from './configWeb.routes';
 import membroEquipeRoutes from './membroEquipe.routes';
 import unidadeRoutes from './unidade.routes';
+import disponibilidadeRoutes from './disponibilidade.routes';
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.use('/horarios-bloqueados', horarioBloqueadoRoutes);
 router.use('/config-web', configWebRoutes);
 router.use('/equipe', membroEquipeRoutes);
 router.use('/unidades', unidadeRoutes);
+router.use('/disponibilidade', disponibilidadeRoutes);
 
 // Health check
 router.get('/health', (_req, res) => {

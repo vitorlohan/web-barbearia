@@ -11,6 +11,7 @@ import { FaTimes, FaCheck } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { agendamentoService } from '../../services/agendamentoService';
 import { servicoService, Servico } from '../../services/servicoService';
+import { disponibilidadeService } from '../../services/disponibilidadeService';
 import '../../styles/modal.css';
 
 interface AgendamentoModalProps {
@@ -32,6 +33,7 @@ export function AgendamentoModal({ isOpen, onClose }: AgendamentoModalProps) {
   const [loading, setLoading] = useState(false);
   const [sucesso, setSucesso] = useState(false);
   const [loadingHorarios, setLoadingHorarios] = useState(false);
+  const [diasDisponiveis, setDiasDisponiveis] = useState<number[]>([]);
 
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<FormData>();
   const dataSelecionada = watch('data');
@@ -40,8 +42,12 @@ export function AgendamentoModal({ isOpen, onClose }: AgendamentoModalProps) {
     if (!isOpen) return;
     async function load() {
       try {
-        const response = await servicoService.listarPublico();
-        setServicos(response.data.data);
+        const [servicosRes, diasRes] = await Promise.all([
+          servicoService.listarPublico(),
+          disponibilidadeService.diasDisponiveis(),
+        ]);
+        setServicos(servicosRes.data.data);
+        setDiasDisponiveis(diasRes.data.data);
       } catch {
         setServicos([
           { id: '1', nome: 'Corte de cabelo', descricao: '', preco: 55.90, duracaoMinutos: 40, ativo: true, createdAt: '', updatedAt: '' },
@@ -63,8 +69,7 @@ export function AgendamentoModal({ isOpen, onClose }: AgendamentoModalProps) {
         const response = await agendamentoService.horariosDisponiveis(dataSelecionada);
         setHorarios(response.data.data);
       } catch {
-        // Fallback com horários padrão
-        setHorarios(['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30']);
+        setHorarios([]);
       }
       setLoadingHorarios(false);
     }
@@ -182,6 +187,11 @@ export function AgendamentoModal({ isOpen, onClose }: AgendamentoModalProps) {
               {...register('data', { required: 'Data é obrigatória' })}
             />
             {errors.data && <span className="form-error">{errors.data.message}</span>}
+            {diasDisponiveis.length > 0 && (
+              <small style={{ color: 'var(--color-text-muted)', display: 'block', marginTop: '0.3rem' }}>
+                Atendemos: {diasDisponiveis.map((d) => ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][d]).join(', ')}
+              </small>
+            )}
           </div>
 
           {dataSelecionada && (
@@ -190,7 +200,11 @@ export function AgendamentoModal({ isOpen, onClose }: AgendamentoModalProps) {
               {loadingHorarios ? (
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Carregando horários...</p>
               ) : horarios.length === 0 ? (
-                <p style={{ color: 'var(--color-danger)', fontSize: '0.85rem' }}>Nenhum horário disponível nesta data</p>
+                <p style={{ color: 'var(--color-danger)', fontSize: '0.85rem' }}>
+                  {diasDisponiveis.length > 0 && !diasDisponiveis.includes(new Date(dataSelecionada + 'T12:00:00').getDay())
+                    ? 'Não atendemos neste dia da semana. Escolha outra data.'
+                    : 'Nenhum horário disponível nesta data'}
+                </p>
               ) : (
                 <div className="horarios-grid">
                   {horarios.map((h) => (

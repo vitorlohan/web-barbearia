@@ -6,3 +6,4 @@ export { HorarioBloqueadoController } from './HorarioBloqueadoController';
 export { ConfiguracaoWebController } from './ConfiguracaoWebController';
 export { MembroEquipeController } from './MembroEquipeController';
 export { UnidadeController } from './UnidadeController';
+export { DisponibilidadeController } from './DisponibilidadeController';

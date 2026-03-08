@@ -154,6 +154,28 @@ async function main() {
     console.log(`⏩ ${unidadesExistentes} unidades já existem, pulando...`);
   }
 
+  // Criar disponibilidade semanal padrão (apenas se não existir)
+  const disponibilidadeExistente = await prisma.disponibilidadeSemanal.count();
+
+  if (disponibilidadeExistente === 0) {
+    const diasPadrao = [
+      { diaSemana: 0, horaInicio: '09:00', horaFim: '18:00', intervaloMinutos: 30, maxAgendamentos: 1, ativo: false }, // Domingo
+      { diaSemana: 1, horaInicio: '09:00', horaFim: '20:00', intervaloMinutos: 30, maxAgendamentos: 2, ativo: true },  // Segunda
+      { diaSemana: 2, horaInicio: '09:00', horaFim: '20:00', intervaloMinutos: 30, maxAgendamentos: 2, ativo: true },  // Terça
+      { diaSemana: 3, horaInicio: '09:00', horaFim: '20:00', intervaloMinutos: 30, maxAgendamentos: 2, ativo: true },  // Quarta
+      { diaSemana: 4, horaInicio: '09:00', horaFim: '20:00', intervaloMinutos: 30, maxAgendamentos: 2, ativo: true },  // Quinta
+      { diaSemana: 5, horaInicio: '09:00', horaFim: '20:00', intervaloMinutos: 30, maxAgendamentos: 2, ativo: true },  // Sexta
+      { diaSemana: 6, horaInicio: '08:00', horaFim: '18:00', intervaloMinutos: 30, maxAgendamentos: 2, ativo: true },  // Sábado
+    ];
+
+    for (const dia of diasPadrao) {
+      await prisma.disponibilidadeSemanal.create({ data: dia });
+    }
+    console.log('✅ Disponibilidade semanal criada (Seg-Sáb ativo, Dom fechado)');
+  } else {
+    console.log(`⏩ ${disponibilidadeExistente} disponibilidades já existem, pulando...`);
+  }
+
   console.log('🎉 Seed finalizado com sucesso!');
 }
 

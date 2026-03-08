@@ -149,3 +149,17 @@ model Unidade {
 
   @@map("unidades")
 }
+
+model DisponibilidadeSemanal {
+  id               String   @id @default(uuid())
+  diaSemana        Int      @unique @map("dia_semana") // 0=Domingo, 1=Segunda... 6=Sábado
+  horaInicio       String   @map("hora_inicio")
+  horaFim          String   @map("hora_fim")
+  intervaloMinutos Int      @default(30) @map("intervalo_minutos")
+  maxAgendamentos  Int      @default(1)  @map("max_agendamentos")
+  ativo            Boolean  @default(true)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("disponibilidades_semanais")
+}

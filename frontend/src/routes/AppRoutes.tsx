@@ -14,6 +14,7 @@ import { AgendamentosPage } from '../pages/admin/AgendamentosPage';
 import { ServicosPage } from '../pages/admin/ServicosPage';
 import { HorariosPage } from '../pages/admin/HorariosPage';
 import { ConfiguracaoPage } from '../pages/admin/ConfiguracaoPage';
+import { DisponibilidadePage } from '../pages/admin/DisponibilidadePage';
 import { ConfigWebPage } from '../pages/admin/ConfigWebPage';
 import { PrivateRoute } from './PrivateRoute';
 
@@ -40,6 +41,7 @@ export function AppRoutes() {
         <Route path="agendamentos" element={<AgendamentosPage />} />
         <Route path="servicos" element={<ServicosPage />} />
         <Route path="horarios" element={<HorariosPage />} />
+        <Route path="disponibilidade" element={<DisponibilidadePage />} />
         <Route path="configuracoes" element={<ConfiguracaoPage />} />
         <Route path="config-web" element={<ConfigWebPage />} />
       </Route>

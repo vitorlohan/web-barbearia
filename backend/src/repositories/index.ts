@@ -6,3 +6,4 @@ export { HorarioBloqueadoRepository } from './HorarioBloqueadoRepository';
 export { ConfiguracaoWebRepository } from './ConfiguracaoWebRepository';
 export { MembroEquipeRepository } from './MembroEquipeRepository';
 export { UnidadeRepository } from './UnidadeRepository';
+export { DisponibilidadeRepository } from './DisponibilidadeRepository';
