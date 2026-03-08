@@ -1,11 +1,11 @@
 /* Unidades Section */
 .unidades {
   padding: 6rem 0;
-  background: var(--color-bg-section);
+  background: var(--color-bg-white);
 }
 
 .unidades .section-title {
-  color: var(--color-text-white);
+  color: var(--color-text-dark);
   text-transform: uppercase;
   font-weight: 900;
 }

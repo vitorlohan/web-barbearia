@@ -5,9 +5,9 @@
  * Página Serviços (Admin)
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { FaPlus, FaEdit, FaTrash, FaTimes, FaUpload, FaImage } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 import { servicoService, Servico } from '../../../services/servicoService';
 
 export function ServicosPage() {
@@ -18,7 +18,6 @@ export function ServicosPage() {
 
   // Form state
   const [nome, setNome] = useState('');
-  const [descricao, setDescricao] = useState('');
   const [preco, setPreco] = useState('');
   const [duracaoMinutos, setDuracaoMinutos] = useState('');
   const [ativo, setAtivo] = useState(true);
@@ -39,7 +38,6 @@ export function ServicosPage() {
 
   const resetForm = () => {
     setNome('');
-    setDescricao('');
     setPreco('');
     setDuracaoMinutos('');
     setAtivo(true);
@@ -50,7 +48,6 @@ export function ServicosPage() {
   const handleEdit = (servico: Servico) => {
     setEditando(servico);
     setNome(servico.nome);
-    setDescricao(servico.descricao || '');
     setPreco(String(servico.preco));
     setDuracaoMinutos(String(servico.duracaoMinutos));
     setAtivo(servico.ativo);
@@ -67,7 +64,6 @@ export function ServicosPage() {
 
     const data = {
       nome,
-      descricao: descricao || undefined,
       preco: Number(preco),
       duracaoMinutos: Number(duracaoMinutos),
       ativo,
@@ -99,18 +95,6 @@ export function ServicosPage() {
       toast.error('Erro ao deletar serviço');
     }
   };
-
-  const handleUploadImagem = async (id: string, file: File) => {
-    try {
-      await servicoService.uploadImagem(id, file);
-      toast.success('Imagem atualizada!');
-      loadServicos();
-    } catch {
-      toast.error('Erro ao enviar imagem');
-    }
-  };
-
-  const imgInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const formatPreco = (preco: number) =>
     preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -170,14 +154,6 @@ export function ServicosPage() {
                   <span className="toggle-label">{ativo ? 'Ativo' : 'Inativo'}</span>
                 </div>
               </div>
-              <div className="form-group full-width">
-                <label>Descrição</label>
-                <textarea
-                  value={descricao}
-                  onChange={(e) => setDescricao(e.target.value)}
-                  placeholder="Descrição do serviço..."
-                />
-              </div>
             </div>
             <div className="admin-form-actions">
               <button type="button" className="btn-admin btn-admin-outline" onClick={resetForm}>
@@ -196,7 +172,6 @@ export function ServicosPage() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Imagem</th>
               <th>Nome</th>
               <th>Preço</th>
               <th>Duração</th>
@@ -207,51 +182,17 @@ export function ServicosPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center' }}>Carregando...</td>
+                <td colSpan={5} style={{ textAlign: 'center' }}>Carregando...</td>
               </tr>
             ) : servicos.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                <td colSpan={5} style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
                   Nenhum serviço cadastrado
                 </td>
               </tr>
             ) : (
               servicos.map((s) => (
                 <tr key={s.id}>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      {s.imagem ? (
-                        <img
-                          src={s.imagem}
-                          alt={s.nome}
-                          style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' }}
-                        />
-                      ) : (
-                        <div style={{ width: 40, height: 40, borderRadius: 6, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <FaImage style={{ opacity: 0.3, fontSize: '0.9rem' }} />
-                        </div>
-                      )}
-                      <input
-                        ref={(el) => { imgInputRefs.current[s.id] = el; }}
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) handleUploadImagem(s.id, f);
-                          e.target.value = '';
-                        }}
-                      />
-                      <button
-                        className="table-action-btn"
-                        onClick={() => imgInputRefs.current[s.id]?.click()}
-                        title="Upload imagem"
-                        style={{ fontSize: '0.7rem' }}
-                      >
-                        <FaUpload />
-                      </button>
-                    </div>
-                  </td>
                   <td>{s.nome}</td>
                   <td>{formatPreco(s.preco)}</td>
                   <td>{s.duracaoMinutos} min</td>

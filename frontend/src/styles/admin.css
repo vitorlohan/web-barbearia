@@ -27,7 +27,7 @@
 }
 
 .admin-sidebar-logo h2 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 1.3rem;
   color: var(--color-primary);
 }
@@ -170,7 +170,7 @@
 .stat-card-value {
   font-size: 2rem;
   font-weight: 800;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
 }
 
 .stat-card-label {
@@ -414,7 +414,7 @@
 }
 
 .login-card h1 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 1.75rem;
   text-align: center;
   margin-bottom: 0.5rem;
