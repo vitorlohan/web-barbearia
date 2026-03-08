@@ -95,4 +95,19 @@ export class ConfiguracaoController {
       });
     }
   };
+
+  disconnectWhatsApp = async (_req: Request, res: Response): Promise<void> => {
+    try {
+      await WhatsAppService.desconectar();
+      res.json({
+        status: 'success',
+        data: { message: 'WhatsApp desconectado com sucesso.' },
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        status: 'error',
+        message: error.message || 'Erro ao desconectar',
+      });
+    }
+  };
 }

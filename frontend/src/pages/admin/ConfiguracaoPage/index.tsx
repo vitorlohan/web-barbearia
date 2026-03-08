@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { FaSave, FaWhatsapp, FaPlus, FaTimes, FaCircle, FaSyncAlt, FaTimesCircle } from 'react-icons/fa';
+import { FaSave, FaWhatsapp, FaPlus, FaTimes, FaCircle, FaSyncAlt, FaTimesCircle, FaSignOutAlt } from 'react-icons/fa';
 import { configuracaoService } from '../../../services/configuracaoService';
 
 interface Configuracao {
@@ -155,6 +155,17 @@ export function ConfiguracaoPage() {
     }
   };
 
+  const handleDisconnect = async () => {
+    try {
+      await configuracaoService.disconnectWhatsApp();
+      setWppConnected(false);
+      setWppQrCode(null);
+      toast.success('WhatsApp desconectado!');
+    } catch {
+      toast.error('Erro ao desconectar WhatsApp');
+    }
+  };
+
   const handleAddNumero = () => {
     const numero = novoNumero.replace(/\D/g, '');
     if (!numero || numero.length < 10) {
@@ -260,6 +271,27 @@ export function ConfiguracaoPage() {
                         : 'WhatsApp desconectado'}
               </span>
             </div>
+            {wppConnected && (
+              <button
+                type="button"
+                onClick={handleDisconnect}
+                style={{
+                  padding: '0.4rem 1rem',
+                  fontSize: '0.85rem',
+                  background: 'rgba(220, 53, 69, 0.15)',
+                  color: '#dc3545',
+                  border: '1px solid rgba(220, 53, 69, 0.3)',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                }}
+              >
+                <FaSignOutAlt /> Desconectar
+              </button>
+            )}
             {!wppConnected && !wppInitializing && !reconnecting && !wppError && (
               <button
                 type="button"

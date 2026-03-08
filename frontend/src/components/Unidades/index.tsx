@@ -45,10 +45,12 @@ export function Unidades({ unidades }: UnidadesProps) {
         <div className="unidades-grid">
           {lista.map((unidade) => (
             <div key={unidade.id} className="unidade-card">
-              <img
-                src={unidade.imagem || 'https://images.unsplash.com/photo-1585747860873-cf6d02f8f7d1?w=600&q=80'}
-                alt={unidade.nome}
-              />
+              <div className="unidade-card-img">
+                <img
+                  src={unidade.imagem || 'https://images.unsplash.com/photo-1585747860873-cf6d02f8f7d1?w=600&q=80'}
+                  alt={unidade.nome}
+                />
+              </div>
               <div className="unidade-card-info">
                 <h3>{unidade.nome}</h3>
                 <p>{unidade.cidade}</p>

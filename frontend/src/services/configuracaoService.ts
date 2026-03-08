@@ -35,4 +35,7 @@ export const configuracaoService = {
 
   reconnectWhatsApp: () =>
     api.post<{ status: string; data: { message: string } }>('/configuracao/whatsapp-reconnect'),
+
+  disconnectWhatsApp: () =>
+    api.post<{ status: string; data: { message: string } }>('/configuracao/whatsapp-disconnect'),
 };
