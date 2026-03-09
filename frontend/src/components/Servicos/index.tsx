@@ -6,17 +6,17 @@
  */
 
 import { useEffect, useState } from 'react';
-import { servicoService, Servico } from '../../services/servicoService';
+import { servicoWebService, ServicoWeb } from '../../services/servicoWebService';
 import '../../styles/servicos.css';
 
 export function Servicos() {
-  const [servicos, setServicos] = useState<Servico[]>([]);
+  const [servicos, setServicos] = useState<ServicoWeb[]>([]);
 
   useEffect(() => {
     async function load() {
       try {
-        const response = await servicoService.listarPublico();
-        setServicos(response.data.data.filter((s: Servico) => s.imagem));
+        const response = await servicoWebService.listarPublico();
+        setServicos(response.data.data);
       } catch {
         setServicos([]);
       }
@@ -42,7 +42,7 @@ export function Servicos() {
             <div key={servico.id} className="servico-card">
               <div className="servico-card-image">
                 <img
-                  src={servico.imagem!}
+                  src={servico.imagem || ''}
                   alt={servico.nome}
                 />
               </div>

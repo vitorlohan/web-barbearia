@@ -10,3 +10,4 @@ export { ConfiguracaoWebService } from './ConfiguracaoWebService';
 export { MembroEquipeService } from './MembroEquipeService';
 export { UnidadeService } from './UnidadeService';
 export { DisponibilidadeService } from './DisponibilidadeService';
+export { ServicoWebService } from './ServicoWebService';

@@ -28,7 +28,7 @@ import {
   MembroEquipe,
   Unidade,
 } from '../../../services/configWebService';
-import { servicoService, Servico } from '../../../services/servicoService';
+import { servicoWebService, ServicoWeb } from '../../../services/servicoWebService';
 import { useSiteConfig } from '../../../contexts/SiteConfigContext';
 import { applyColorPalette } from '../../../hooks/useColorPalette';
 import '../../../styles/configWeb.css';
@@ -50,7 +50,7 @@ export function ConfigWebPage() {
   const [config, setConfig] = useState<ConfiguracaoWeb | null>(null);
   const [membros, setMembros] = useState<MembroEquipe[]>([]);
   const [unidades, setUnidades] = useState<Unidade[]>([]);
-  const [servicos, setServicos] = useState<Servico[]>([]);
+  const [servicos, setServicos] = useState<ServicoWeb[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -60,7 +60,7 @@ export function ConfigWebPage() {
   // Modal states
   const [membroModal, setMembroModal] = useState<{ open: boolean; membro?: MembroEquipe }>({ open: false });
   const [unidadeModal, setUnidadeModal] = useState<{ open: boolean; unidade?: Unidade }>({ open: false });
-  const [servicoModal, setServicoModal] = useState<{ open: boolean; servico?: Servico }>({ open: false });
+  const [servicoModal, setServicoModal] = useState<{ open: boolean; servico?: ServicoWeb }>({ open: false });
 
   const loadData = useCallback(async () => {
     try {
@@ -68,7 +68,7 @@ export function ConfigWebPage() {
         configWebService.obter(),
         configWebService.listarEquipe(),
         configWebService.listarUnidades(),
-        servicoService.listarTodos(),
+        servicoWebService.listarTodos(),
       ]);
       const c = configRes.data.data;
       setConfig(c);
@@ -905,15 +905,15 @@ function TabServicos({
   setServicoModal,
   onReload,
 }: {
-  servicos: Servico[];
-  servicoModal: { open: boolean; servico?: Servico };
-  setServicoModal: (m: { open: boolean; servico?: Servico }) => void;
+  servicos: ServicoWeb[];
+  servicoModal: { open: boolean; servico?: ServicoWeb };
+  setServicoModal: (m: { open: boolean; servico?: ServicoWeb }) => void;
   onReload: () => void;
 }) {
   const handleDelete = async (id: string) => {
     if (!confirm('Tem certeza que deseja excluir este serviço?')) return;
     try {
-      await servicoService.deletar(id);
+      await servicoWebService.deletar(id);
       toast.success('Serviço excluído');
       onReload();
     } catch {
@@ -927,7 +927,7 @@ function TabServicos({
   return (
     <div className="config-web-form-section">
       <div className="config-web-crud-header">
-        <h3>Serviços</h3>
+        <h3>Serviços (Visual do site)</h3>
         <button className="config-web-add-btn" onClick={() => setServicoModal({ open: true })}>
           <FaPlus />
           Novo serviço
@@ -937,11 +937,14 @@ function TabServicos({
       <p className="config-web-size-hint">
         📐 Tamanho recomendado da imagem: <strong>600 × 440 px</strong> (proporção 300×220). Formatos: JPG, PNG ou WebP.
       </p>
+      <p className="config-web-size-hint" style={{ marginTop: '0.25rem' }}>
+        ⚠️ Esses serviços controlam os <strong>cards visuais</strong> exibidos no site público. Para gerenciar o <strong>dropdown de agendamento</strong>, use a página "Serviços" no menu lateral.
+      </p>
 
       <div className="config-web-crud-list">
         {servicos.length === 0 && (
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
-            Nenhum serviço cadastrado.
+            Nenhum serviço visual cadastrado.
           </p>
         )}
         {servicos.map((s) => (
@@ -955,7 +958,7 @@ function TabServicos({
             </div>
             <div className="config-web-crud-item-info">
               <h4>{s.nome}</h4>
-              <p>{formatPreco(s.preco)} · {s.duracaoMinutos} min{s.descricao ? ` · ${s.descricao}` : ''}</p>
+              <p>{formatPreco(s.preco)}{s.descricao ? ` · ${s.descricao}` : ''}</p>
             </div>
             <span className={s.ativo ? 'badge-active' : 'badge-inactive'}>
               {s.ativo ? 'Ativo' : 'Inativo'}
@@ -973,7 +976,7 @@ function TabServicos({
       </div>
 
       {servicoModal.open && (
-        <ServicoModal
+        <ServicoWebModal
           servico={servicoModal.servico}
           onClose={() => setServicoModal({ open: false })}
           onSaved={() => {
@@ -986,20 +989,19 @@ function TabServicos({
   );
 }
 
-/* Modal: Serviço */
-function ServicoModal({
+/* Modal: Serviço Web */
+function ServicoWebModal({
   servico,
   onClose,
   onSaved,
 }: {
-  servico?: Servico;
+  servico?: ServicoWeb;
   onClose: () => void;
   onSaved: () => void;
 }) {
   const [nome, setNome] = useState(servico?.nome || '');
   const [descricao, setDescricao] = useState(servico?.descricao || '');
   const [preco, setPreco] = useState(servico ? String(servico.preco) : '');
-  const [duracaoMinutos, setDuracaoMinutos] = useState(servico ? String(servico.duracaoMinutos) : '');
   const [ativo, setAtivo] = useState(servico?.ativo ?? true);
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -1007,8 +1009,8 @@ function ServicoModal({
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async () => {
-    if (!nome.trim() || !preco || !duracaoMinutos) {
-      toast.warning('Preencha nome, preço e duração');
+    if (!nome.trim() || !preco) {
+      toast.warning('Preencha nome e preço');
       return;
     }
     setSaving(true);
@@ -1017,26 +1019,24 @@ function ServicoModal({
         nome,
         descricao: descricao || undefined,
         preco: Number(preco),
-        duracaoMinutos: Number(duracaoMinutos),
         ativo,
       };
 
-      let savedServico: Servico;
+      let savedServico: ServicoWeb;
       if (servico) {
-        const res = await servicoService.atualizar(servico.id, data);
+        const res = await servicoWebService.atualizar(servico.id, data);
         savedServico = res.data.data;
         toast.success('Serviço atualizado!');
       } else {
-        const res = await servicoService.criar(data);
+        const res = await servicoWebService.criar(data);
         savedServico = res.data.data;
         toast.success('Serviço criado!');
       }
 
-      // Upload de imagem se selecionada
       if (file) {
         setUploadingImg(true);
         try {
-          await servicoService.uploadImagem(savedServico.id, file);
+          await servicoWebService.uploadImagem(savedServico.id, file);
           toast.success('Imagem enviada!');
         } catch {
           toast.error('Serviço salvo, mas erro ao enviar imagem');
@@ -1055,7 +1055,7 @@ function ServicoModal({
     if (!servico) return;
     if (!confirm('Remover imagem deste serviço?')) return;
     try {
-      await servicoService.removerImagem(servico.id);
+      await servicoWebService.removerImagem(servico.id);
       toast.success('Imagem removida!');
       onSaved();
     } catch {
@@ -1072,15 +1072,9 @@ function ServicoModal({
           <label>Nome *</label>
           <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Corte de cabelo" />
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <div className="config-web-form-group" style={{ flex: 1 }}>
-            <label>Preço (R$) *</label>
-            <input type="number" step="0.01" value={preco} onChange={(e) => setPreco(e.target.value)} placeholder="55.90" />
-          </div>
-          <div className="config-web-form-group" style={{ flex: 1 }}>
-            <label>Duração (min) *</label>
-            <input type="number" value={duracaoMinutos} onChange={(e) => setDuracaoMinutos(e.target.value)} placeholder="40" />
-          </div>
+        <div className="config-web-form-group">
+          <label>Preço (R$) *</label>
+          <input type="number" step="0.01" value={preco} onChange={(e) => setPreco(e.target.value)} placeholder="55.90" />
         </div>
         <div className="config-web-form-group">
           <label>Descrição</label>
