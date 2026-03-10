@@ -44,14 +44,22 @@ export class WhatsAppService {
         folderNameToken: path.resolve(__dirname, '..', '..', 'tokens'),
         headless: true,
         autoClose: 0,
+        waitForLogin: true,
+        updatesLog: false,
         puppeteerOptions: {
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-gpu',
+            '--disable-dev-shm-usage',
+            '--no-first-run',
+          ],
         },
         logQR: false,
-        catchQR: (base64Qr) => {
+        catchQR: (base64Qr, _asciiQR, attempt) => {
           // Armazena o QR code em base64 para servir via API
           WhatsAppService.qrCode = base64Qr;
-          console.log('📱 QR Code gerado — disponível no painel admin');
+          console.log(`📱 QR Code gerado (tentativa ${attempt}) — disponível no painel admin`);
         },
         statusFind: (statusSession) => {
           console.log(`📱 Status da sessão: ${statusSession}`);

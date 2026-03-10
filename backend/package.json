@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.10.0",
-    "@wppconnect-team/wppconnect": "^1.38.0",
+    "@wppconnect-team/wppconnect": "^1.41.0",
     "axios": "^1.6.7",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.9.0",

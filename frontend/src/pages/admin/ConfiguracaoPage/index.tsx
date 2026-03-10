@@ -131,7 +131,7 @@ export function ConfiguracaoPage() {
       } catch {
         // silencioso
       }
-    }, 3000);
+    }, 2000);
   }, []);
 
   const stopPolling = useCallback(() => {
